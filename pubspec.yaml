@@ -1,0 +1,54 @@
+name: ddarungi_noti
+description: 따릉이 알리미 - personalized Seoul Bike (Ddareungi) availability alerts.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # state management / models
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.9.0
+
+  # network / storage
+  dio: ^5.4.3
+  shared_preferences: ^2.2.3
+  uuid: ^4.4.0
+
+  # map / location / notifications
+  kakao_map_plugin: ^0.4.0
+  geolocator: ^12.0.0
+  flutter_local_notifications: ^17.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.9
+  freezed: ^2.5.2
+  json_serializable: ^6.8.0
+  riverpod_generator: ^2.4.0
+
+flutter:
+  uses-material-design: true
+
+  # Pretendard (https://github.com/orioncactus/pretendard, OFL license).
+  # Download the static OTF/TTF files into assets/fonts/ and uncomment; the theme already asks for
+  # the 'Pretendard' family and falls back to the platform font until the files exist.
+  # fonts:
+  #   - family: Pretendard
+  #     fonts:
+  #       - asset: assets/fonts/Pretendard-Regular.otf
+  #       - asset: assets/fonts/Pretendard-Medium.otf
+  #         weight: 500
+  #       - asset: assets/fonts/Pretendard-SemiBold.otf
+  #         weight: 600
+  #       - asset: assets/fonts/Pretendard-Bold.otf
+  #         weight: 700

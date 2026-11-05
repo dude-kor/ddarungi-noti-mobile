@@ -1,0 +1,61 @@
+name: Release
+
+# Push a tag such as v0.1.0 to build a release APK and attach it to a GitHub Release.
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write     # create the GitHub Release
+
+jobs:
+  android:
+    name: Release APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Require production settings
+        run: |
+          [ -n "${{ vars.API_BASE_URL }}" ] || { echo "::error::Set the repository variable API_BASE_URL (https://...)"; exit 1; }
+          [ -n "${{ secrets.KAKAO_JS_KEY }}" ] || { echo "::error::Set the repository secret KAKAO_JS_KEY"; exit 1; }
+
+      - name: Generate & patch the Android project
+        run: bash scripts/setup_platforms.sh android      # no CLEARTEXT: release builds require https
+
+      - run: flutter pub get
+      - run: flutter test
+
+      # NOTE: the generated Gradle project signs release builds with the debug key. Before publishing to
+      # Google Play, add a real upload keystore (store it as repository secrets) and wire it into
+      # android/app/build.gradle – then commit the android/ folder so the signing config is kept.
+      - name: Build release APK
+        run: >
+          flutter build apk --release
+          --dart-define=API_BASE_URL=${{ vars.API_BASE_URL }}
+          --dart-define=KAKAO_JS_KEY=${{ secrets.KAKAO_JS_KEY }}
+
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/app/outputs/flutter-apk/app-release.apk
+          generate_release_notes: true
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
